@@ -60,7 +60,9 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true };
+const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true, gender: "unisex", age_group: "0-3m" };
+const GENDER_OPTIONS = ["unisex", "boy", "girl"];
+const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
 
 function Products() {
   const qc = useQueryClient();
@@ -80,7 +82,7 @@ function Products() {
   const openNew = () => { setEditing(null); setF(emptyProduct); setOpen(true); };
   const openEdit = (p: Product) => {
     setEditing(p);
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", sizes: p.sizes.join(", "), stock: String(p.stock), active: p.active });
+    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", sizes: p.sizes.join(", "), stock: String(p.stock), active: p.active, gender: p.gender, age_group: p.age_group });
     setOpen(true);
   };
   const save = async (e: React.FormEvent) => {
@@ -94,6 +96,8 @@ function Products() {
       sizes: f.sizes.split(",").map((s) => s.trim()).filter(Boolean),
       stock: parseInt(f.stock) || 0,
       active: f.active,
+      gender: f.gender,
+      age_group: f.age_group,
     };
     const { error } = editing
       ? await supabase.from("products").update(row).eq("id", editing.id)
@@ -154,6 +158,20 @@ function Products() {
                 <option value="">None</option>
                 {cats.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label>For</Label>
+                <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })}>
+                  {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <Label>Age group</Label>
+                <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.age_group} onChange={(e) => setF({ ...f, age_group: e.target.value })}>
+                  {AGE_OPTIONS.map((a) => <option key={a} value={a}>{a}</option>)}
+                </select>
+              </div>
             </div>
             <div className="space-y-1"><Label>Sizes (comma separated)</Label><Input placeholder="0-3M, 3-6M" value={f.sizes} onChange={(e) => setF({ ...f, sizes: e.target.value })} /></div>
             <div className="flex items-center gap-2"><Switch checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label>Visible in shop</Label></div>

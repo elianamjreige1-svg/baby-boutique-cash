@@ -16,8 +16,18 @@ export const Route = createFileRoute("/")({
   component: Shop,
 });
 
+const GENDERS = [
+  { value: null, label: "Everyone" },
+  { value: "boy", label: "Boy" },
+  { value: "girl", label: "Girl" },
+  { value: "unisex", label: "Unisex" },
+];
+const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
+
 function Shop() {
   const [cat, setCat] = useState<string | null>(null);
+  const [gender, setGender] = useState<string | null>(null);
+  const [age, setAge] = useState<string | null>(null);
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
@@ -27,7 +37,12 @@ function Shop() {
     queryFn: async () =>
       (await supabase.from("products").select("*").eq("active", true).order("created_at", { ascending: false })).data ?? [],
   });
-  const shown = cat ? products.filter((p) => p.category_id === cat) : products;
+  const shown = products.filter(
+    (p) =>
+      (!cat || p.category_id === cat) &&
+      (!gender || p.gender === gender || p.gender === "unisex") &&
+      (!age || p.age_group === age),
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -41,18 +56,57 @@ function Shop() {
         </p>
       </section>
 
-      <div className="mb-8 flex flex-wrap gap-2">
-        {[{ id: null, name: "All" }, ...categories].map((c) => (
+      <div className="mb-8 space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
+          {[{ id: null, name: "All" }, ...categories].map((c) => (
+            <button
+              key={c.id ?? "all"}
+              onClick={() => setCat(c.id)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
+          {GENDERS.map((g) => (
+            <button
+              key={g.label}
+              onClick={() => setGender(g.value)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                gender === g.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
           <button
-            key={c.id ?? "all"}
-            onClick={() => setCat(c.id)}
+            onClick={() => setAge(null)}
             className={`rounded-full border px-4 py-1.5 text-sm transition ${
-              cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              age === null ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
             }`}
           >
-            {c.name}
+            All ages
           </button>
-        ))}
+          {AGE_GROUPS.map((a) => (
+            <button
+              key={a}
+              onClick={() => setAge(a)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                age === a ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (
@@ -69,6 +123,9 @@ function Shop() {
                 )}
               </div>
               <h3 className="mt-3 text-lg">{p.name}</h3>
+              <p className="text-xs text-muted-foreground">
+                {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.age_group}
+              </p>
               <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
             </Link>
           ))}

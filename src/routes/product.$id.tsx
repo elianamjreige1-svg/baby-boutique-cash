@@ -39,6 +39,9 @@ function ProductPage() {
       </div>
       <div className="flex flex-col gap-5">
         <h1 className="text-4xl font-semibold">{p.name}</h1>
+        <p className="text-sm text-muted-foreground">
+          {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "For boys" : "For girls"} · Age {p.age_group}
+        </p>
         <p className="text-2xl font-semibold text-primary">{money(Number(p.price))}</p>
         <p className="text-muted-foreground">{p.description}</p>
         {needsSize && (

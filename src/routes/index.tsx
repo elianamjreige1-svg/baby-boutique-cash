@@ -9,7 +9,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "CuddleKids — Soft Baby Clothes, Cash on Delivery" },
       { name: "description", content: "Shop organic bodysuits, pajamas and knits for babies. Pay cash when it arrives." },
-      { property: "og:title", content: "Little Nest — Soft Baby Clothes" },
+      { property: "og:title", content: "CuddleKids — Soft Baby Clothes" },
       { property: "og:description", content: "Organic baby clothes delivered to your door. Cash on delivery." },
     ],
   }),

@@ -8,6 +8,13 @@
       "when": 1792091359265,
       "tag": "0000_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792092065072,
+      "tag": "0001_add_gender_age_to_products",
+      "breakpoints": true
     }
   ]
 }

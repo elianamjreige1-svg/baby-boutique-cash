@@ -60,7 +60,9 @@ function useCategories() {
 
 /* ---------------- Products ---------------- */
 type Product = Tables<"products">;
-const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true };
+const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true, gender: "unisex", age_group: "0-3m" };
+const GENDER_OPTIONS = ["unisex", "boy", "girl"];
+const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
 
 function Products() {
   const qc = useQueryClient();
@@ -80,7 +82,7 @@ function Products() {
   const openNew = () => { setEditing(null); setF(emptyProduct); setOpen(true); };
   const openEdit = (p: Product) => {
     setEditing(p);
-    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", sizes: p.sizes.join(", "), stock: String(p.stock), active: p.active });
+    setF({ name: p.name, description: p.description, price: String(p.price), image_url: p.image_url ?? "", category_id: p.category_id ?? "", sizes: p.sizes.join(", "), stock: String(p.stock), active: p.active, gender: p.gender, age_group: p.age_group });
     setOpen(true);
   };
   const save = async (e: React.FormEvent) => {

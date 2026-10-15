@@ -47,9 +47,9 @@ function Shop() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
-        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">Cash on delivery</p>
+        <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
         <h1 className="mx-auto max-w-2xl text-4xl font-semibold text-accent-foreground md:text-6xl">
-          Gentle clothes for tiny humans
+         Welcome to CuddleKids
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           Organic cotton, soft knits, honest prices. Pay only when it reaches your door.

@@ -163,7 +163,7 @@ function Products() {
               <div className="space-y-1">
                 <Label>For</Label>
                 <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })}>
-                  {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g[0].toUpperCase() + g.slice(1)}</option>)}
+                  {GENDER_OPTIONS.map((g) => <option key={g} value={g}>{g.charAt(0).toUpperCase() + g.slice(1)}</option>)}
                 </select>
               </div>
               <div className="space-y-1">

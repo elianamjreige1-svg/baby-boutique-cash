@@ -123,6 +123,9 @@ function Shop() {
                 )}
               </div>
               <h3 className="mt-3 text-lg">{p.name}</h3>
+              <p className="text-xs text-muted-foreground">
+                {p.gender === "unisex" ? "Unisex" : p.gender === "boy" ? "Boy" : "Girl"} · {p.age_group}
+              </p>
               <p className="text-sm font-semibold text-primary">{money(Number(p.price))}</p>
             </Link>
           ))}

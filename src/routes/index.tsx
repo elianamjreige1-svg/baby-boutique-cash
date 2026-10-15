@@ -56,18 +56,57 @@ function Shop() {
         </p>
       </section>
 
-      <div className="mb-8 flex flex-wrap gap-2">
-        {[{ id: null, name: "All" }, ...categories].map((c) => (
+      <div className="mb-8 space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Category</span>
+          {[{ id: null, name: "All" }, ...categories].map((c) => (
+            <button
+              key={c.id ?? "all"}
+              onClick={() => setCat(c.id)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">For</span>
+          {GENDERS.map((g) => (
+            <button
+              key={g.label}
+              onClick={() => setGender(g.value)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                gender === g.value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {g.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Age</span>
           <button
-            key={c.id ?? "all"}
-            onClick={() => setCat(c.id)}
+            onClick={() => setAge(null)}
             className={`rounded-full border px-4 py-1.5 text-sm transition ${
-              cat === c.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              age === null ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
             }`}
           >
-            {c.name}
+            All ages
           </button>
-        ))}
+          {AGE_GROUPS.map((a) => (
+            <button
+              key={a}
+              onClick={() => setAge(a)}
+              className={`rounded-full border px-4 py-1.5 text-sm transition ${
+                age === a ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-muted"
+              }`}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
       </div>
 
       {isLoading ? (

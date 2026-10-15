@@ -16,8 +16,18 @@ export const Route = createFileRoute("/")({
   component: Shop,
 });
 
+const GENDERS = [
+  { value: null, label: "Everyone" },
+  { value: "boy", label: "Boy" },
+  { value: "girl", label: "Girl" },
+  { value: "unisex", label: "Unisex" },
+];
+const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
+
 function Shop() {
   const [cat, setCat] = useState<string | null>(null);
+  const [gender, setGender] = useState<string | null>(null);
+  const [age, setAge] = useState<string | null>(null);
   const { data: categories = [] } = useQuery({
     queryKey: ["categories"],
     queryFn: async () => (await supabase.from("categories").select("*").order("name")).data ?? [],
@@ -27,7 +37,12 @@ function Shop() {
     queryFn: async () =>
       (await supabase.from("products").select("*").eq("active", true).order("created_at", { ascending: false })).data ?? [],
   });
-  const shown = cat ? products.filter((p) => p.category_id === cat) : products;
+  const shown = products.filter(
+    (p) =>
+      (!cat || p.category_id === cat) &&
+      (!gender || p.gender === gender || p.gender === "unisex") &&
+      (!age || p.age_group === age),
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">

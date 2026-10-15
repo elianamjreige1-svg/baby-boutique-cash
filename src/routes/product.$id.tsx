@@ -68,7 +68,7 @@ function ProductPage() {
           className="rounded-full"
           disabled={p.stock < 1}
           onClick={() => {
-            if (needsSize && !size) return toast.error("Please choose a size");
+            if (needsSize && !size) { toast.error("Please choose a size"); return; }
             add({ productId: p.id, name: p.name, price: Number(p.price), image: p.image_url, size, quantity: qty });
             toast.success("Added to cart");
           }}

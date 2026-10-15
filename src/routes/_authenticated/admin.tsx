@@ -98,7 +98,7 @@ function Products() {
     const { error } = editing
       ? await supabase.from("products").update(row).eq("id", editing.id)
       : await supabase.from("products").insert(row);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Product saved");
     setOpen(false);
     refresh();
@@ -106,7 +106,7 @@ function Products() {
   const del = async (p: Product) => {
     if (!confirm(`Delete "${p.name}"?`)) return;
     const { error } = await supabase.from("products").delete().eq("id", p.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Deleted");
     refresh();
   };
@@ -176,20 +176,20 @@ function Categories() {
     e.preventDefault();
     if (!name.trim()) return;
     const { error } = await supabase.from("categories").insert({ name: name.trim() });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     setName(""); refresh();
   };
   const rename = async (id: string, current: string) => {
     const n = prompt("New name", current);
     if (!n?.trim()) return;
     const { error } = await supabase.from("categories").update({ name: n.trim() }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
   };
   const del = async (id: string) => {
     if (!confirm("Delete this category? Products will stay but lose the category.")) return;
     const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
   };
 
@@ -225,13 +225,13 @@ function Orders() {
 
   const setStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Status updated"); refresh();
   };
   const del = async (id: string) => {
     if (!confirm("Delete this order?")) return;
     const { error } = await supabase.from("orders").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     refresh();
   };
 

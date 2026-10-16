@@ -13,9 +13,9 @@ import { Textarea } from "@/components/ui/textarea";
 export const Route = createFileRoute("/checkout")({
   head: () => ({
     meta: [
-      { title: "Checkout — Little Nest" },
+      { title: "Checkout — CuddleKids" },
       { name: "description", content: "Enter your delivery details and pay cash on delivery." },
-      { property: "og:title", content: "Checkout — Little Nest" },
+      { property: "og:title", content: "Checkout — CuddleKids" },
       { property: "og:description", content: "Cash on delivery checkout." },
     ],
   }),

@@ -18,10 +18,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — Little Nest" },
+      { title: "Admin — CuddleKids" },
       { name: "description", content: "Manage products, categories and orders." },
-      { property: "og:title", content: "Admin — Little Nest" },
-      { property: "og:description", content: "Little Nest admin dashboard." },
+      { property: "og:title", content: "Admin — CuddleKids" },
+      { property: "og:description", content: "CuddleKids admin dashboard." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -62,7 +62,7 @@ function useCategories() {
 type Product = Tables<"products">;
 const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true, gender: "unisex", age_group: "0-3m" };
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
-const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
+const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
 
 function Products() {
   const qc = useQueryClient();

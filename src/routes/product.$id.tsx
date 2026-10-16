@@ -9,10 +9,10 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/product/$id")({
   head: () => ({
     meta: [
-      { title: "Product — Little Nest" },
-      { name: "description", content: "Soft baby clothing from Little Nest. Cash on delivery." },
-      { property: "og:title", content: "Product — Little Nest" },
-      { property: "og:description", content: "Soft baby clothing from Little Nest." },
+      { title: "Product — CuddleKids" },
+      { name: "description", content: "Soft baby clothing from CuddleKids. Cash on delivery." },
+      { property: "og:title", content: "Product — CuddleKids" },
+      { property: "og:description", content: "Soft baby clothing from CuddleKids." },
     ],
   }),
   component: ProductPage,

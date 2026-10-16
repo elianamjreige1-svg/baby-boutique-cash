@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { money } from "@/lib/cart";
 
@@ -49,14 +50,24 @@ function Shop() {
       <section className="mb-12 rounded-3xl bg-accent px-8 py-14 text-center">
         <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary"></p>
         <h1 className="mx-auto max-w-2xl text-4xl font-semibold text-accent-foreground md:text-6xl">
-         Welcome to CuddleKids
+         Welcome to CuddleKids Shop
         </h1>
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           Organic cotton, soft knits, honest prices. Pay only when it reaches your door.
         </p>
-        <a href="tel:+96171613153" className="mt-6 inline-block rounded-full bg-primary px-6 py-2 font-semibold text-primary-foreground">
-          📞 71 613 153
-        </a>
+        <div className="mt-6 flex flex-col items-center gap-3">
+          <a href="tel:+96171613153" className="inline-block rounded-full bg-primary px-6 py-2 font-semibold text-primary-foreground">
+            📞 71 613 153
+          </a>
+          <a
+            href="https://wa.me/96171613153"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 rounded-full border border-primary bg-card px-6 py-2 font-semibold text-primary transition hover:bg-muted"
+          >
+            <MessageCircle className="h-4 w-4" /> Chat on WhatsApp
+          </a>
+        </div>
       </section>
 
       <div className="mb-8 space-y-3">

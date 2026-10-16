@@ -30,6 +30,36 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
 
+// Multi-word "contains" search across a row's fields (case-insensitive).
+function matches(query: string, fields: Array<string | number | null | undefined>) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const haystack = fields.map((v) => (v == null ? "" : String(v))).join(" ").toLowerCase();
+  return q.split(/\s+/).every((word) => haystack.includes(word));
+}
+
+function SearchBar({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="relative">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-10 pl-9 pr-9"
+        aria-label={placeholder}
+      />
+      {value && (
+        <button type="button" onClick={() => onChange("")} aria-label="Clear search"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted">
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+
 function Admin() {
   const { isAdmin, ready } = useSession();
   if (!ready) return <p className="p-12 text-center text-muted-foreground">Loading…</p>;

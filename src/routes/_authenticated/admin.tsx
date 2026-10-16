@@ -316,7 +316,16 @@ function Orders() {
     queryKey: ["admin-orders"],
     queryFn: async () => (await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })).data ?? [],
   });
+  const [q, setQ] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-orders"] });
+
+  const visible = orders.filter((o) =>
+    matches(q, [
+      o.id, o.customer_name, o.phone, o.address, o.city, o.notes, o.status,
+      o.order_items.map((i) => `${i.product_name} ${i.size ?? ""}`).join(" "),
+    ]),
+  );
+
 
   const setStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);

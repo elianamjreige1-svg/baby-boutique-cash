@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useSession } from "@/lib/use-session";
@@ -29,6 +29,36 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const STATUSES = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
+
+// Multi-word "contains" search across a row's fields (case-insensitive).
+function matches(query: string, fields: Array<string | number | null | undefined>) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const haystack = fields.map((v) => (v == null ? "" : String(v))).join(" ").toLowerCase();
+  return q.split(/\s+/).every((word) => haystack.includes(word));
+}
+
+function SearchBar({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder: string }) {
+  return (
+    <div className="relative">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-10 pl-9 pr-9"
+        aria-label={placeholder}
+      />
+      {value && (
+        <button type="button" onClick={() => onChange("")} aria-label="Clear search"
+          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-muted-foreground hover:bg-muted">
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 
 function Admin() {
   const { isAdmin, ready } = useSession();
@@ -92,6 +122,13 @@ function Products() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(emptyProduct);
+  const [q, setQ] = useState("");
+
+  const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "";
+  const visible = products.filter((p) =>
+    matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id), p.active ? "visible" : "hidden"]),
+  );
+
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });
@@ -135,12 +172,22 @@ function Products() {
 
   return (
     <div className="mt-4">
-      <Button onClick={openNew} className="mb-4 rounded-full"><Plus className="h-4 w-4" /> New product</Button>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button onClick={openNew} className="rounded-full sm:w-auto"><Plus className="h-4 w-4" /> New product</Button>
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder="Search products by name, size, age, category…" /></div>
+        <p className="text-sm text-muted-foreground">{visible.length} of {products.length}</p>
+      </div>
+      {visible.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">
+          {q ? `No products match “${q}”.` : "No products yet."}
+        </p>
+      ) : (
       <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left"><tr><th className="p-3">Product</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Visible</th><th className="p-3" /></tr></thead>
           <tbody>
-            {products.map((p) => (
+            {visible.map((p) => (
+
               <tr key={p.id} className="border-t border-border">
                 <td className="flex items-center gap-3 p-3">
                   <div className="h-12 w-10 overflow-hidden rounded bg-muted">{p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}</div>
@@ -158,6 +205,8 @@ function Products() {
           </tbody>
         </table>
       </div>
+      )}
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -267,7 +316,16 @@ function Orders() {
     queryKey: ["admin-orders"],
     queryFn: async () => (await supabase.from("orders").select("*, order_items(*)").order("created_at", { ascending: false })).data ?? [],
   });
+  const [q, setQ] = useState("");
   const refresh = () => qc.invalidateQueries({ queryKey: ["admin-orders"] });
+
+  const visible = orders.filter((o) =>
+    matches(q, [
+      o.id, o.customer_name, o.phone, o.address, o.city, o.notes, o.status,
+      o.order_items.map((i) => `${i.product_name} ${i.size ?? ""}`).join(" "),
+    ]),
+  );
+
 
   const setStatus = async (id: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", id);
@@ -281,10 +339,19 @@ function Orders() {
     refresh();
   };
 
-  if (orders.length === 0) return <p className="mt-6 text-muted-foreground">No orders yet.</p>;
   return (
     <div className="mt-4 space-y-4">
-      {orders.map((o) => (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder="Search orders by name, phone, city, item, status…" /></div>
+        <p className="text-sm text-muted-foreground">{visible.length} of {orders.length}</p>
+      </div>
+      {orders.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">No orders yet.</p>
+      ) : visible.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">No orders match “{q}”.</p>
+      ) : null}
+      {visible.map((o) => (
+
         <div key={o.id} className="rounded-2xl border border-border bg-card p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

@@ -9,10 +9,10 @@ import { Label } from "@/components/ui/label";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign In — Little Nest" },
-      { name: "description", content: "Sign in to manage the Little Nest shop." },
-      { property: "og:title", content: "Sign In — Little Nest" },
-      { property: "og:description", content: "Sign in to Little Nest." },
+      { title: "Sign In — CuddleKids" },
+      { name: "description", content: "Sign in to manage the CuddleKids shop." },
+      { property: "og:title", content: "Sign In — CuddleKids" },
+      { property: "og:description", content: "Sign in to CuddleKids." },
     ],
   }),
   component: AuthPage,

@@ -81,9 +81,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Little Nest — Baby Clothes" },
+      { title: "CuddleKids — Baby Clothes" },
       { name: "description", content: "Soft, simple baby clothes. Pay cash on delivery." },
-      { property: "og:title", content: "Little Nest — Baby Clothes" },
+      { property: "og:title", content: "CuddleKids — Baby Clothes" },
       { property: "og:description", content: "Soft, simple baby clothes. Pay cash on delivery." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -135,7 +135,7 @@ function RootComponent() {
           <Outlet />
         </main>
         <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
-          Little Nest · Cash on delivery only
+          CuddleKids · Cash on delivery only
         </footer>
         <Toaster />
       </CartProvider>

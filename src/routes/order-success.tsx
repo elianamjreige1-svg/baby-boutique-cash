@@ -6,9 +6,9 @@ export const Route = createFileRoute("/order-success")({
   validateSearch: z.object({ id: z.string().optional() }),
   head: () => ({
     meta: [
-      { title: "Order Placed — Little Nest" },
+      { title: "Order Placed — CuddleKids" },
       { name: "description", content: "Thank you for your order." },
-      { property: "og:title", content: "Order Placed — Little Nest" },
+      { property: "og:title", content: "Order Placed — CuddleKids" },
       { property: "og:description", content: "Thank you for your order." },
     ],
   }),

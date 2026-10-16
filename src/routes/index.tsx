@@ -22,7 +22,7 @@ const GENDERS = [
   { value: "girl", label: "Girl" },
   { value: "unisex", label: "Unisex" },
 ];
-const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
+const AGE_GROUPS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
 
 function Shop() {
   const [cat, setCat] = useState<string | null>(null);
@@ -54,6 +54,9 @@ function Shop() {
         <p className="mx-auto mt-4 max-w-md text-muted-foreground">
           Organic cotton, soft knits, honest prices. Pay only when it reaches your door.
         </p>
+        <a href="tel:+96171613153" className="mt-6 inline-block rounded-full bg-primary px-6 py-2 font-semibold text-primary-foreground">
+          📞 71 613 153
+        </a>
       </section>
 
       <div className="mb-8 space-y-3">

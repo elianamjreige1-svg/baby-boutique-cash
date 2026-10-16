@@ -18,10 +18,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
-      { title: "Admin — Little Nest" },
+      { title: "Admin — CuddleKids" },
       { name: "description", content: "Manage products, categories and orders." },
-      { property: "og:title", content: "Admin — Little Nest" },
-      { property: "og:description", content: "Little Nest admin dashboard." },
+      { property: "og:title", content: "Admin — CuddleKids" },
+      { property: "og:description", content: "CuddleKids admin dashboard." },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -62,7 +62,25 @@ function useCategories() {
 type Product = Tables<"products">;
 const emptyProduct = { name: "", description: "", price: "0", image_url: "", category_id: "", sizes: "", stock: "0", active: true, gender: "unisex", age_group: "0-3m" };
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
-const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y"];
+const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
+
+function resizeImage(file: File, max = 900): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const src = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(src);
+      resolve(c.toDataURL("image/jpeg", 0.8));
+    };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
 
 function Products() {
   const qc = useQueryClient();
@@ -151,7 +169,17 @@ function Products() {
               <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
               <div className="space-y-1"><Label>Stock</Label><Input type="number" min="0" value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} /></div>
             </div>
-            <div className="space-y-1"><Label>Image URL</Label><Input placeholder="https://…" value={f.image_url} onChange={(e) => setF({ ...f, image_url: e.target.value })} /></div>
+            <div className="space-y-1">
+              <Label>Photo</Label>
+              {f.image_url && <img src={f.image_url} alt="" className="h-32 w-28 rounded object-cover" />}
+              <Input type="file" accept="image/*" onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try { setF((cur) => ({ ...cur, image_url: "" })); const url = await resizeImage(file); setF((cur) => ({ ...cur, image_url: url })); }
+                catch { toast.error("Could not read this photo"); }
+              }} />
+              <p className="text-xs text-muted-foreground">Tap to choose a photo from your gallery.</p>
+            </div>
             <div className="space-y-1">
               <Label>Category</Label>
               <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>

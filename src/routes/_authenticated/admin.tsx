@@ -205,6 +205,8 @@ function Products() {
           </tbody>
         </table>
       </div>
+      )}
+
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">

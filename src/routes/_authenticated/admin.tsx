@@ -339,10 +339,19 @@ function Orders() {
     refresh();
   };
 
-  if (orders.length === 0) return <p className="mt-6 text-muted-foreground">No orders yet.</p>;
   return (
     <div className="mt-4 space-y-4">
-      {orders.map((o) => (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder="Search orders by name, phone, city, item, status…" /></div>
+        <p className="text-sm text-muted-foreground">{visible.length} of {orders.length}</p>
+      </div>
+      {orders.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">No orders yet.</p>
+      ) : visible.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">No orders match “{q}”.</p>
+      ) : null}
+      {visible.map((o) => (
+
         <div key={o.id} className="rounded-2xl border border-border bg-card p-5">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

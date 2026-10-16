@@ -172,12 +172,22 @@ function Products() {
 
   return (
     <div className="mt-4">
-      <Button onClick={openNew} className="mb-4 rounded-full"><Plus className="h-4 w-4" /> New product</Button>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <Button onClick={openNew} className="rounded-full sm:w-auto"><Plus className="h-4 w-4" /> New product</Button>
+        <div className="flex-1"><SearchBar value={q} onChange={setQ} placeholder="Search products by name, size, age, category…" /></div>
+        <p className="text-sm text-muted-foreground">{visible.length} of {products.length}</p>
+      </div>
+      {visible.length === 0 ? (
+        <p className="rounded-2xl border border-border bg-card p-6 text-center text-muted-foreground">
+          {q ? `No products match “${q}”.` : "No products yet."}
+        </p>
+      ) : (
       <div className="overflow-x-auto rounded-2xl border border-border bg-card">
         <table className="w-full text-sm">
           <thead className="bg-muted text-left"><tr><th className="p-3">Product</th><th className="p-3">Price</th><th className="p-3">Stock</th><th className="p-3">Visible</th><th className="p-3" /></tr></thead>
           <tbody>
-            {products.map((p) => (
+            {visible.map((p) => (
+
               <tr key={p.id} className="border-t border-border">
                 <td className="flex items-center gap-3 p-3">
                   <div className="h-12 w-10 overflow-hidden rounded bg-muted">{p.image_url && <img src={p.image_url} alt="" className="h-full w-full object-cover" />}</div>

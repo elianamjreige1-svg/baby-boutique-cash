@@ -21,7 +21,7 @@ export function SiteHeader() {
               <Link to="/admin">Admin</Link>
             </Button>
           )}
-          {user ? (
+          {user && (
             <Button
               variant="ghost"
               size="sm"
@@ -31,10 +31,6 @@ export function SiteHeader() {
               }}
             >
               Sign out
-            </Button>
-          ) : (
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/auth">Sign in</Link>
             </Button>
           )}
           <Button asChild size="sm" className="rounded-full">

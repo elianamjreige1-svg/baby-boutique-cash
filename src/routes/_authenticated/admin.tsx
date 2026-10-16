@@ -122,6 +122,13 @@ function Products() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(emptyProduct);
+  const [q, setQ] = useState("");
+
+  const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "";
+  const visible = products.filter((p) =>
+    matches(q, [p.name, p.description, p.gender, p.age_group, p.sizes.join(" "), catName(p.category_id), p.active ? "visible" : "hidden"]),
+  );
+
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["admin-products"] });

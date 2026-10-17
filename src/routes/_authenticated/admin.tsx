@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { optimizeImage, formatBytes, blobToDataUrl, type Optimized } from "@/lib/image-optimize";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,22 +95,79 @@ const emptyProduct = { name: "", description: "", price: "0", image_url: "", cat
 const GENDER_OPTIONS = ["unisex", "boy", "girl"];
 const AGE_OPTIONS = ["0-3m", "3-6m", "6-12m", "1-2y", "2-4y", "4-6y", "6-8y", "8-10y", "10-12y"];
 
-function resizeImage(file: File, max = 900): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const src = URL.createObjectURL(file);
-    img.onload = () => {
-      const scale = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement("canvas");
-      c.width = Math.round(img.width * scale);
-      c.height = Math.round(img.height * scale);
-      c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(src);
-      resolve(c.toDataURL("image/jpeg", 0.8));
-    };
-    img.onerror = reject;
-    img.src = src;
-  });
+type Pending = { opt: Optimized; preview: string };
+
+function PhotoField({ value, onChange, onBusy }: { value: string; onChange: (url: string) => void; onBusy: (b: boolean) => void }) {
+  const [pending, setPending] = useState<Pending | null>(null);
+  const [state, setState] = useState<"idle" | "working" | "uploading" | "error">("idle");
+  const [err, setErr] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const reset = () => {
+    if (pending) URL.revokeObjectURL(pending.preview);
+    setPending(null); setState("idle"); setErr(""); onBusy(false);
+    if (inputRef.current) inputRef.current.value = "";
+  };
+
+  const pick = async (file?: File) => {
+    if (!file) return;
+    if (pending) URL.revokeObjectURL(pending.preview);
+    setState("working"); setErr(""); onBusy(true);
+    try {
+      const opt = await optimizeImage(file);
+      setPending({ opt, preview: URL.createObjectURL(opt.blob) });
+      setState("idle");
+    } catch {
+      setPending(null); setState("idle"); onBusy(false);
+      toast.error("Could not read this photo");
+    }
+  };
+
+  const upload = async () => {
+    if (!pending) return;
+    setState("uploading"); setErr("");
+    const ext = pending.opt.type === "image/webp" ? "webp" : pending.opt.type === "image/png" ? "png" : "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, pending.opt.blob, { contentType: pending.opt.type, cacheControl: "31536000" });
+    if (!error) {
+      onChange(supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl);
+    } else if (/bucket not found/i.test(error.message)) {
+      // File storage not available yet: keep the optimized photo inside the product record.
+      onChange(await blobToDataUrl(pending.opt.blob));
+    } else {
+      setState("error"); setErr(error.message); return;
+    }
+    URL.revokeObjectURL(pending.preview);
+    setPending(null); setState("idle"); onBusy(false);
+    if (inputRef.current) inputRef.current.value = "";
+    toast.success("Photo ready");
+  };
+
+  return (
+    <div className="space-y-2">
+      <Label>Photo</Label>
+      {pending ? (
+        <div className="space-y-2 rounded-xl border border-border p-3">
+          <img src={pending.preview} alt="Optimized preview" className="h-40 w-auto rounded object-contain" />
+          <p className="text-xs text-muted-foreground">
+            {pending.opt.width}×{pending.opt.height} · {formatBytes(pending.opt.blob.size)} {pending.opt.type === "image/webp" ? "WebP" : pending.opt.type.split("/")[1]?.toUpperCase()} (was {formatBytes(pending.opt.originalBytes)})
+          </p>
+          {state === "error" && <p className="text-xs text-destructive">Upload failed: {err}</p>}
+          <div className="flex gap-2">
+            <Button type="button" size="sm" className="rounded-full" disabled={state === "uploading"} onClick={upload}>
+              {state === "uploading" ? "Uploading…" : state === "error" ? "Retry" : "Upload"}
+            </Button>
+            <Button type="button" size="sm" variant="outline" className="rounded-full" disabled={state === "uploading"} onClick={() => inputRef.current?.click()}>Choose another</Button>
+            <Button type="button" size="sm" variant="ghost" disabled={state === "uploading"} onClick={reset}>Cancel</Button>
+          </div>
+        </div>
+      ) : (
+        value && <img src={value} alt="" className="h-32 w-28 rounded object-cover" />
+      )}
+      <Input ref={inputRef} type="file" accept="image/*" className={pending ? "hidden" : ""} onChange={(e) => pick(e.target.files?.[0])} />
+      <p className="text-xs text-muted-foreground">{state === "working" ? "Optimizing photo…" : "Tap to choose a photo from your gallery."}</p>
+    </div>
+  );
 }
 
 function Products() {
@@ -123,6 +181,7 @@ function Products() {
   const [open, setOpen] = useState(false);
   const [f, setF] = useState(emptyProduct);
   const [q, setQ] = useState("");
+  const [busy, setBusy] = useState(false);
 
   const catName = (id: string | null) => cats.find((c) => c.id === id)?.name ?? "";
   const visible = products.filter((p) =>
@@ -218,17 +277,7 @@ function Products() {
               <div className="space-y-1"><Label>Price</Label><Input type="number" step="0.01" min="0" value={f.price} onChange={(e) => setF({ ...f, price: e.target.value })} /></div>
               <div className="space-y-1"><Label>Stock</Label><Input type="number" min="0" value={f.stock} onChange={(e) => setF({ ...f, stock: e.target.value })} /></div>
             </div>
-            <div className="space-y-1">
-              <Label>Photo</Label>
-              {f.image_url && <img src={f.image_url} alt="" className="h-32 w-28 rounded object-cover" />}
-              <Input type="file" accept="image/*" onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                try { setF((cur) => ({ ...cur, image_url: "" })); const url = await resizeImage(file); setF((cur) => ({ ...cur, image_url: url })); }
-                catch { toast.error("Could not read this photo"); }
-              }} />
-              <p className="text-xs text-muted-foreground">Tap to choose a photo from your gallery.</p>
-            </div>
+            <PhotoField value={f.image_url} onChange={(url) => setF((cur) => ({ ...cur, image_url: url }))} onBusy={setBusy} />
             <div className="space-y-1">
               <Label>Category</Label>
               <select className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm" value={f.category_id} onChange={(e) => setF({ ...f, category_id: e.target.value })}>
@@ -252,7 +301,7 @@ function Products() {
             </div>
             <div className="space-y-1"><Label>Sizes (comma separated)</Label><Input placeholder="0-3M, 3-6M" value={f.sizes} onChange={(e) => setF({ ...f, sizes: e.target.value })} /></div>
             <div className="flex items-center gap-2"><Switch checked={f.active} onCheckedChange={(v) => setF({ ...f, active: v })} /><Label>Visible in shop</Label></div>
-            <Button type="submit" className="w-full rounded-full">Save</Button>
+            <Button type="submit" disabled={busy} className="w-full rounded-full">{busy ? "Finish the photo first…" : "Save"}</Button>
           </form>
         </DialogContent>
       </Dialog>

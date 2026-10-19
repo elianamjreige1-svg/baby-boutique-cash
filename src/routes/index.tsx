@@ -127,20 +127,49 @@ function ClaimsHome() {
         <section key={g} className="mb-6 rounded-lg border border-border bg-card p-5">
           <h2 className="mb-4 text-lg font-semibold border-b pb-2">{g}</h2>
           <div className="grid gap-4 sm:grid-cols-2">
-            {FIELDS.filter((f) => f.group === g).map((f) => (
-              <div key={f.key}>
+                        {FIELDS.filter((f) => f.group === g).map((f) => (
+              <div key={f.key} className={f.key === "responsibility" ? "sm:col-span-2" : ""}>
                 <Label htmlFor={f.key}>{f.label}</Label>
-                <Input
-                  id={f.key}
-                  value={data[f.key]}
-                  className="mt-1"
-                  onChange={(e) => {
-                    setFile(null);
-                    setData({ ...data, [f.key]: e.target.value });
-                  }}
-                />
+                {f.key === "responsibility" ? (
+                  <div className="mt-2 grid grid-cols-4 gap-2">
+                    {["25", "50", "75", "100"].map((percent) => (
+                      <label
+                        key={percent}
+                        className={`flex items-center justify-center py-2.5 px-3 rounded-lg border text-sm font-semibold cursor-pointer transition-all ${
+                          data.responsibility === percent
+                            ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                            : "bg-background text-foreground hover:bg-muted border-border"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="responsibility"
+                          value={percent}
+                          checked={data.responsibility === percent}
+                          onChange={(e) => {
+                            setFile(null);
+                            setData({ ...data, responsibility: e.target.value });
+                          }}
+                          className="sr-only"
+                        />
+                        <span>{percent}%</span>
+                      </label>
+                    ))}
+                  </div>
+                ) : (
+                  <Input
+                    id={f.key}
+                    value={data[f.key]}
+                    className="mt-1"
+                    onChange={(e) => {
+                      setFile(null);
+                      setData({ ...data, [f.key]: e.target.value });
+                    }}
+                  />
+                )}
               </div>
             ))}
+
           </div>
         </section>
       ))}

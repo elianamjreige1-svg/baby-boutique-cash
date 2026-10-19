@@ -8,9 +8,9 @@ import { money } from "@/lib/cart";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "CuddleKids — Soft Baby Clothes, Cash on Delivery" },
+      { title: "cuddlekids.lb — Soft Baby Clothes, Cash on Delivery" },
       { name: "description", content: "Shop organic bodysuits, pajamas and knits for babies. Pay cash when it arrives." },
-      { property: "og:title", content: "CuddleKids — Soft Baby Clothes" },
+      { property: "og:title", content: "Cuddlekidslb — Soft Baby Clothes" },
       { property: "og:description", content: "Organic baby clothes delivered to your door. Cash on delivery." },
     ],
   }),

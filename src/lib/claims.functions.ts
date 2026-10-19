@@ -74,7 +74,7 @@ export const extractClaim = createServerFn({ method: "POST" })
           },
         },
       } as Parameters<typeof streamText>[0]);
-      const out = (await result.output) as Partial<ClaimData>;
+      const out = (await (result as unknown as { output: Promise<unknown> }).output) as Partial<ClaimData>;
       return { ...emptyClaim(), ...out };
     } catch (e) {
       const status = (e as { statusCode?: number }).statusCode;

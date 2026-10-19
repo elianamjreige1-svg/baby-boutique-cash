@@ -28,7 +28,11 @@ function partyTable(title: string, nameLabel: string, rows: [string, string][]) 
 }
 
 const p = (text: string, opts: { bold?: boolean; after?: number; align?: (typeof AlignmentType)[keyof typeof AlignmentType] } = {}) =>
-  new Paragraph({ alignment: opts.align, spacing: { after: opts.after ?? 160 }, children: [new TextRun({ text, bold: opts.bold })] });
+  new Paragraph({
+    ...(opts.align ? { alignment: opts.align } : {}),
+    spacing: { after: opts.after ?? 160 },
+    children: [new TextRun({ text, bold: !!opts.bold })],
+  });
 
 export async function buildClaimDocx(d: ClaimData, att: Attachments): Promise<Blob> {
   const box = (on: boolean) => (on ? "☒" : "☐");

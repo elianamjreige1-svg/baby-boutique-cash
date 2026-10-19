@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { emptyClaim, type ClaimData } from "./claim-fields";
 
 const claimSchema = z.object({
@@ -29,16 +28,12 @@ Extract the fields below and write every value in English (transliterate Arabic 
 Use an empty string for anything not visible. Never guess.`;
 
 export const extractClaim = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: { image: string }) => {
     if (typeof input?.image !== "string" || !input.image.startsWith("data:image/")) throw new Error("Please choose a photo.");
     if (input.image.length > 8_000_000) throw new Error("Photo is too large.");
     return input;
   })
-  .handler(async ({ data, context }): Promise<ClaimData> => {
-    const { data: isAdmin } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    if (!isAdmin) throw new Error("Admins only.");
-
+  .handler(async ({ data }): Promise<ClaimData> => {
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("AI is not configured.");
 
